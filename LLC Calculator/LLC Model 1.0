@@ -1,0 +1,37 @@
+LLC Converter Design Report
+Generated: Fri Feb 27 20:16:46 2026
+
+========= LLC Design Results =========
+  Bridge type:              Half Bridge
+
+  -- User Inputs --
+  Vin:                      108.0000 V
+  Vout:                     13.4000 V
+  Power:                    500.0000 W
+  Switching frequency:      400.000 kHz
+  Lambda (Lm/Lr):           6.0000
+
+  -- Derived Values --
+  Output current (Iout):    37.3134 A
+  Turns ratio (Np:Ns):      4.030 : 1
+  Load resistance (Rload):  0.3591 Ohm
+  Reflected load (Rac):     4.7272 Ohm
+  Quality factor (Q):       0.4000
+  Characteristic imp (Zr):  1.8909 Ohm
+  Resonant freq (fr):       400.000 kHz
+  Resonant inductance (Lr): 0.7524 uH
+  Resonant capacitance(Cr): 210.4226 nF
+  Magnetizing ind (Lm):     4.5142 uH
+  Gamma (Lr/Lm):            0.1667
+  Normalised freq (fn):     1.0000
+
+  -- Gain Breakdown --
+  Desired gain:             0.1241
+  Bridge gain:              0.5000
+  Tank gain:                1.0000
+  Transformer gain:         0.2481
+  Total gain:               0.1241
+  Predicted Vout:           13.4000 V
+  Target Vout:              13.4000 V
+  Gain error:               0.000%
+======================================

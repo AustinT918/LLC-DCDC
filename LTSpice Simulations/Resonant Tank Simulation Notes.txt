@@ -1,0 +1,11 @@
+Resonant Tank Simulation
+Expected Value from calculations
+Gain = 1
+
+Square Wave peaks at 54V
+Output Voltage @ R1 Peaks at ~33.47
+
+DC offset of square wave 27V
+Fundamental Amplitude = (2/pi) * 54 =~ 34.4V peak
+
+Fundamental Amplitude/Output Voltage = 0.97, close to unity gain
