@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLC Resonant Converter Calculator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --card: #161a22;
+    --border: #1f2530;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; position: relative; z-index: 1; }
+
+  header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 32px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-left h1 {
+    font-family: var(--mono);
+    font-size: 22px; font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .header-left .sub {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); margin-top: 4px; letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .badge {
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    color: var(--accent); font-family: var(--mono);
+    font-size: 10px; padding: 4px 10px; border-radius: 2px;
+    letter-spacing: 1px;
+  }
+
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+
+  /* INPUTS PANEL */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    background: var(--surface);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-header::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--accent); border-radius: 50%;
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  .inputs-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  .input-group label {
+    display: block; font-size: 11px;
+    color: var(--muted); font-family: var(--mono);
+    margin-bottom: 5px; letter-spacing: 0.5px;
+  }
+  .input-group label span { color: var(--accent); }
+
+  .input-row { display: flex; gap: 6px; }
+
+  .input-group input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono); font-size: 13px;
+    padding: 8px 10px; border-radius: 3px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-group input:focus { border-color: var(--accent); }
+  .input-group .unit {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: none;
+    color: var(--muted); font-family: var(--mono);
+    font-size: 11px; padding: 8px 10px;
+    border-radius: 0 3px 3px 0; white-space: nowrap;
+    display: flex; align-items: center;
+  }
+  .input-group input { border-radius: 3px 0 0 3px; }
+
+  .section-label {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--accent2); letter-spacing: 2px;
+    text-transform: uppercase; padding: 6px 0 2px;
+    border-top: 1px solid var(--border); margin-top: 4px;
+  }
+
+  .calc-btn {
+    margin-top: 8px;
+    background: var(--accent);
+    color: #000; border: none;
+    font-family: var(--mono); font-size: 12px;
+    font-weight: 600; letter-spacing: 2px;
+    padding: 12px; border-radius: 3px;
+    cursor: pointer; width: 100%;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .calc-btn:hover { background: #33eeff; transform: translateY(-1px); }
+  .calc-btn:active { transform: translateY(0); }
+
+  /* RIGHT SIDE */
+  .right-col { display: flex; flex-direction: column; gap: 20px; }
+
+  /* METRICS ROW */
+  .metrics-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+  }
+
+  .metric-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px; padding: 14px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .metric-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .metric-card.cyan::after { background: var(--accent); }
+  .metric-card.purple::after { background: var(--accent2); }
+  .metric-card.green::after { background: var(--accent3); }
+  .metric-card.amber::after { background: var(--warn); }
+  .metric-card.red::after { background: var(--danger); }
+
+  .metric-card .label {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--muted); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .metric-card .value {
+    font-family: var(--mono); font-size: 22px;
+    font-weight: 600; line-height: 1;
+  }
+  .metric-card.cyan .value { color: var(--accent); }
+  .metric-card.purple .value { color: var(--accent2); }
+  .metric-card.green .value { color: var(--accent3); }
+  .metric-card.amber .value { color: var(--warn); }
+  .metric-card.red .value { color: var(--danger); }
+
+  .metric-card .unit-small {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); margin-top: 4px;
+  }
+
+  /* CHARTS */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .chart-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px; overflow: hidden;
+  }
+  .chart-panel .chart-body { padding: 16px; }
+  .chart-panel canvas { max-height: 220px; }
+
+  /* ANALYSIS TABLE */
+  .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  .data-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  .data-table td:first-child { color: var(--muted); font-size: 11px; }
+  .data-table td:last-child { text-align: right; color: var(--text); }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .status-ok { color: var(--accent3) !important; }
+  .status-warn { color: var(--warn) !important; }
+  .status-bad { color: var(--danger) !important; }
+
+  /* EFFICIENCY BAR */
+  .eff-bar-wrap { padding: 14px 16px; }
+  .eff-bar-label { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .eff-bar-outer { background: var(--bg); height: 10px; border-radius: 2px; overflow: hidden; }
+  .eff-bar-inner {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  .notes-box {
+    padding: 14px 16px;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); line-height: 1.8;
+    border-top: 1px solid var(--border);
+  }
+  .notes-box .note-ok { color: var(--accent3); }
+  .notes-box .note-warn { color: var(--warn); }
+  .notes-box .note-bad { color: var(--danger); }
+
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; }
+    .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+    .analysis-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-left">
+      <h1>LLC Resonant DC–DC Converter</h1>
+      <div class="sub">Design Calculator &amp; Efficiency Analyzer</div>
+    </div>
+    <div class="badge">ECE TOOLS v2.0</div>
+  </header>
+
+  <div class="layout">
+    <!-- INPUT PANEL -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">Design Parameters</div>
+        <div class="inputs-body">
+
+          <div class="section-label">Electrical Specs</div>
+
+          <div class="input-group">
+            <label>Input Voltage <span>(Vin)</span></label>
+            <div class="input-row">
+              <input type="number" id="Vin" value="108" min="1">
+              <div class="unit">V</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Output Voltage <span>(Vout)</span></label>
+            <div class="input-row">
+              <input type="number" id="Vout" value="13.4" min="0.1">
+              <div class="unit">V</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Output Power <span>(Pout)</span></label>
+            <div class="input-row">
+              <input type="number" id="Pout" value="500" min="1">
+              <div class="unit">W</div>
+            </div>
+          </div>
+
+          <div class="section-label">Resonant Tank</div>
+
+          <div class="input-group">
+            <label>Resonant Inductance <span>(Lr)</span></label>
+            <div class="input-row">
+              <input type="number" id="Lr" value="10" min="0.001" step="0.1">
+              <div class="unit">µH</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Resonant Capacitance <span>(Cr)</span></label>
+            <div class="input-row">
+              <input type="number" id="Cr" value="15.8" min="0.001" step="0.1">
+              <div class="unit">nF</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Magnetizing Inductance <span>(Lm)</span></label>
+            <div class="input-row">
+              <input type="number" id="Lm" value="60" min="0.001" step="1">
+              <div class="unit">µH</div>
+            </div>
+          </div>
+
+          <div class="section-label">Transformer & Switching</div>
+
+          <div class="input-group">
+            <label>Turns Ratio <span>(n = Np/Ns)</span></label>
+            <div class="input-row">
+              <input type="number" id="n" value="4" min="0.1" step="0.1">
+              <div class="unit">—</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Switching Frequency <span>(fs)</span></label>
+            <div class="input-row">
+              <input type="number" id="fs" value="400" min="1">
+              <div class="unit">kHz</div>
+            </div>
+          </div>
+
+          <div class="section-label">Losses &amp; Parasitics</div>
+
+          <div class="input-group">
+            <label>MOSFET Rds(on) <span>(each)</span></label>
+            <div class="input-row">
+              <input type="number" id="Rdson" value="25" min="0.1" step="1">
+              <div class="unit">mΩ</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Diode Vf <span>(output rect.)</span></label>
+            <div class="input-row">
+              <input type="number" id="Vf" value="0.4" min="0.01" step="0.05">
+              <div class="unit">V</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Winding ESR <span>(Lr winding)</span></label>
+            <div class="input-row">
+              <input type="number" id="Resr" value="50" min="1" step="5">
+              <div class="unit">mΩ</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Core Loss Factor <span>(kcore)</span></label>
+            <div class="input-row">
+              <input type="number" id="kcore" value="0.5" min="0" step="0.05">
+              <div class="unit">W</div>
+            </div>
+          </div>
+
+          <button class="calc-btn" onclick="calculate()">▶ CALCULATE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- KEY METRICS -->
+      <div class="metrics-grid">
+        <div class="metric-card cyan">
+          <div class="label">Resonant Freq</div>
+          <div class="value" id="m-fr">—</div>
+          <div class="unit-small">kHz</div>
+        </div>
+        <div class="metric-card green">
+          <div class="label">Efficiency</div>
+          <div class="value" id="m-eff">—</div>
+          <div class="unit-small">%</div>
+        </div>
+        <div class="metric-card purple">
+          <div class="label">Inductance Ratio</div>
+          <div class="value" id="m-Ln">—</div>
+          <div class="unit-small">Lm / Lr</div>
+        </div>
+        <div class="metric-card amber">
+          <div class="label">Total Loss</div>
+          <div class="value" id="m-Ploss">—</div>
+          <div class="unit-small">W</div>
+        </div>
+        <div class="metric-card cyan">
+          <div class="label">Char. Impedance</div>
+          <div class="value" id="m-Zr">—</div>
+          <div class="unit-small">Ω</div>
+        </div>
+      </div>
+
+      <!-- EFFICIENCY BAR -->
+      <div class="panel">
+        <div class="panel-header">Efficiency</div>
+        <div class="eff-bar-wrap">
+          <div class="eff-bar-label">
+            <span>0%</span><span id="eff-pct-label">—</span><span>100%</span>
+          </div>
+          <div class="eff-bar-outer">
+            <div class="eff-bar-inner" id="eff-bar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="notes-box" id="notes-box">
+          Hit Calculate to analyse design.
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="charts-grid">
+        <div class="chart-panel">
+          <div class="panel-header">Voltage Gain vs Frequency</div>
+          <div class="chart-body">
+            <canvas id="gainChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-header">Efficiency vs Load</div>
+          <div class="chart-body">
+            <canvas id="effChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-header">Impedance vs Frequency (|Ztank|)</div>
+          <div class="chart-body">
+            <canvas id="impedChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-panel">
+          <div class="panel-header">Power Loss Breakdown</div>
+          <div class="chart-body">
+            <canvas id="lossChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYSIS TABLES -->
+      <div class="analysis-grid">
+        <div class="panel">
+          <div class="panel-header">Resonant Tank Analysis</div>
+          <table class="data-table" id="tank-table">
+            <tr><td>fr (resonant)</td><td>—</td></tr>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-header">Loss Budget</div>
+          <table class="data-table" id="loss-table">
+            <tr><td>MOSFET conduction</td><td>—</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Chart instances
+let gainChart, effChart, impedChart, lossChart;
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: {
+      ticks: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } },
+      grid: { color: 'rgba(255,255,255,0.04)' },
+      border: { color: '#1f2530' }
+    },
+    y: {
+      ticks: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } },
+      grid: { color: 'rgba(255,255,255,0.04)' },
+      border: { color: '#1f2530' }
+    }
+  }
+};
+
+function destroyCharts() {
+  [gainChart, effChart, impedChart, lossChart].forEach(c => { if(c) c.destroy(); });
+}
+
+function getVal(id) { return parseFloat(document.getElementById(id).value); }
+
+// LLC voltage gain using FHA (First Harmonic Approximation)
+// M(fn, Q, Ln) where fn = fs/fr, Q = quality factor, Ln = Lm/Lr
+function llcGain(fn, Q, Ln) {
+  const fn2 = fn * fn;
+  const a = Ln * fn2;
+  const b = (Ln + 1) * fn2 - Ln;
+  const re = b;
+  const im = Q * fn * (fn2 * (Ln + 1) - Ln) - Q * fn * a / fn2;
+  // Standard FHA LLC gain:
+  // M = (fn^2 * Ln) / sqrt( (fn^2*(Ln+1) - Ln)^2 + (fn * Q * (fn^2*(Ln+1) - 1))^2 )
+  const num = fn2 * Ln;
+  const dre = fn2 * (Ln + 1) - Ln;
+  const dim = fn * Q * (fn2 * (Ln + 1) - 1);
+  const denom = Math.sqrt(dre * dre + dim * dim);
+  return denom > 0 ? num / denom : 0;
+}
+
+// Tank impedance magnitude
+function tankImpedance(f, Lr_H, Cr_F, Lm_H) {
+  const w = 2 * Math.PI * f;
+  const jXLr = w * Lr_H;
+  const jXCr = 1 / (w * Cr_F);
+  const jXLm = w * Lm_H;
+  // Series Lr-Cr with parallel Lm
+  // Simplified: |Z| = |jXLr - jXCr| (resonant contribution)
+  const Zser = Math.abs(jXLr - jXCr);
+  const Zpar = jXLm;
+  // Combine: series Zser with parallel Zpar in magnitude approx
+  const Ztot = Math.sqrt(Zser * Zser + (Zpar * Zser) / (Zser + Zpar) );
+  return Zser; // Plot series tank impedance for clarity
+}
+
+function calculate() {
+  const Vin = getVal('Vin');
+  const Vout = getVal('Vout');
+  const Pout = getVal('Pout');
+  const Lr_uH = getVal('Lr');
+  const Cr_nF = getVal('Cr');
+  const Lm_uH = getVal('Lm');
+  const n = getVal('n');
+  const fs_kHz = getVal('fs');
+  const Rdson_mOhm = getVal('Rdson');
+  const Vf = getVal('Vf');
+  const Resr_mOhm = getVal('Resr');
+  const kcore = getVal('kcore');
+
+  const Lr = Lr_uH * 1e-6;
+  const Cr = Cr_nF * 1e-9;
+  const Lm = Lm_uH * 1e-6;
+  const fs = fs_kHz * 1e3;
+  const Rdson = Rdson_mOhm * 1e-3;
+  const Resr = Resr_mOhm * 1e-3;
+
+  // Resonant frequency
+  const fr = 1 / (2 * Math.PI * Math.sqrt(Lr * Cr));
+  const fr_kHz = fr / 1e3;
+
+  // Inductance ratio
+  const Ln = Lm / Lr;
+
+  // Characteristic impedance
+  const Zr = Math.sqrt(Lr / Cr);
+
+  // Load resistance reflected to primary
+  const Iout = Pout / Vout;
+  const Rac = (8 * n * n * Vout * Vout) / (Math.PI * Math.PI * Pout); // FHA reflected load
+
+  // Q factor
+  const Q = Zr / Rac;
+
+  // fn at operating point
+  const fn = fs / fr;
+
+  // Gain at operating point
+  const M_op = llcGain(fn, Q, Ln);
+  const Vout_calc = M_op * Vin / (2 * n); // half-bridge: Vin/2 applied
+
+  // Currents
+  const Irms_primary = Pout / (Vin * 0.9); // approx
+  const Irms_sec = Iout;
+
+  // Loss calculations
+  const P_mosfet = 4 * Rdson * Irms_primary * Irms_primary; // 4 MOSFETs
+  const P_diode = 2 * Vf * Iout; // 2 output diodes
+  const P_winding = Resr * Irms_primary * Irms_primary;
+  const P_core = kcore * Math.pow(fs_kHz / 100, 1.7);
+  const P_total = P_mosfet + P_diode + P_winding + P_core;
+
+  const Pin = Pout + P_total;
+  const efficiency = (Pout / Pin) * 100;
+
+  // Update metric cards
+  document.getElementById('m-fr').textContent = fr_kHz.toFixed(1);
+  document.getElementById('m-eff').textContent = efficiency.toFixed(2);
+  document.getElementById('m-Ln').textContent = Ln.toFixed(1);
+  document.getElementById('m-Ploss').textContent = P_total.toFixed(2);
+  document.getElementById('m-Zr').textContent = Zr.toFixed(1);
+
+  // Efficiency bar
+  const barW = Math.min(100, Math.max(0, efficiency));
+  document.getElementById('eff-bar').style.width = barW + '%';
+  document.getElementById('eff-pct-label').textContent = efficiency.toFixed(2) + '%';
+
+  // Design notes
+  const fn_str = fn.toFixed(3);
+  let notes = '';
+  const fnStatus = fn < 0.95 ? 'note-bad' :
+                   fn <= 1.05 ? 'note-ok' : 'note-warn';
+  const fnLabel = fn < 0.95 ? '⚠ Below fr — capacitive region, no ZVS!' :
+                  fn <= 1.05 ? '✓ Near resonance — optimal ZVS region' :
+                  '△ Above fr — inductive, ZVS maintained';
+  notes += `<span class="${fnStatus}">fn = ${fn_str}  →  ${fnLabel}</span>\n`;
+
+  const LnStatus = Ln < 3 ? 'note-warn' : Ln <= 8 ? 'note-ok' : 'note-warn';
+  const LnLabel = Ln < 3 ? 'Ln too low — limited gain range' :
+                  Ln <= 8 ? '✓ Good Ln range for wide load regulation' :
+                  'Ln high — tight gain curve, good efficiency';
+  notes += `<span class="${LnStatus}">Ln = ${Ln.toFixed(1)}  →  ${LnLabel}</span>\n`;
+
+  const effStatus = efficiency > 95 ? 'note-ok' : efficiency > 90 ? 'note-warn' : 'note-bad';
+  notes += `<span class="${effStatus}">η = ${efficiency.toFixed(2)}%  →  Pin = ${Pin.toFixed(1)} W</span>\n`;
+
+  const QStatus = Q < 0.3 ? 'note-warn' : Q <= 0.5 ? 'note-ok' : 'note-warn';
+  notes += `<span class="${QStatus}">Q = ${Q.toFixed(3)}  →  Zr/Rac</span>`;
+
+  document.getElementById('notes-box').innerHTML = notes;
+
+  // Tank analysis table
+  document.getElementById('tank-table').innerHTML = `
+    <tr><td>Resonant Freq (fr)</td><td>${fr_kHz.toFixed(3)} kHz</td></tr>
+    <tr><td>Switching Freq (fs)</td><td>${fs_kHz.toFixed(1)} kHz</td></tr>
+    <tr><td>Norm. Freq (fn = fs/fr)</td><td>${fn.toFixed(4)}</td></tr>
+    <tr><td>Inductance Ratio (Ln)</td><td>${Ln.toFixed(2)}</td></tr>
+    <tr><td>Quality Factor (Q)</td><td>${Q.toFixed(4)}</td></tr>
+    <tr><td>Char. Impedance (Zr)</td><td>${Zr.toFixed(2)} Ω</td></tr>
+    <tr><td>Reflected Load (Rac)</td><td>${Rac.toFixed(2)} Ω</td></tr>
+    <tr><td>Voltage Gain (M)</td><td>${M_op.toFixed(4)}</td></tr>
+    <tr><td>Vout (calculated)</td><td>${Vout_calc.toFixed(2)} V</td></tr>
+    <tr><td>Output Current</td><td>${Iout.toFixed(2)} A</td></tr>
+  `;
+
+  // Loss table
+  document.getElementById('loss-table').innerHTML = `
+    <tr><td>MOSFET Conduction (×4)</td><td>${P_mosfet.toFixed(3)} W</td></tr>
+    <tr><td>Diode Conduction (×2)</td><td>${P_diode.toFixed(3)} W</td></tr>
+    <tr><td>Winding ESR (Lr)</td><td>${P_winding.toFixed(3)} W</td></tr>
+    <tr><td>Core Loss (scaled)</td><td>${P_core.toFixed(3)} W</td></tr>
+    <tr><td style="font-weight:600;color:#e2e8f0">Total Loss</td><td style="font-weight:600;color:#f59e0b">${P_total.toFixed(3)} W</td></tr>
+    <tr><td>Input Power (Pin)</td><td>${Pin.toFixed(2)} W</td></tr>
+    <tr><td style="color:#10b981">Efficiency (η)</td><td style="color:#10b981">${efficiency.toFixed(3)} %</td></tr>
+  `;
+
+  // ---- CHARTS ----
+  destroyCharts();
+
+  // 1. Gain vs frequency
+  const fnArr = [], gainArr = [];
+  for (let f = fr * 0.3; f <= fr * 2.5; f += fr * 0.02) {
+    const fni = f / fr;
+    fnArr.push((f / 1e3).toFixed(1));
+    gainArr.push(llcGain(fni, Q, Ln).toFixed(4));
+  }
+
+  gainChart = new Chart(document.getElementById('gainChart'), {
+    type: 'line',
+    data: {
+      labels: fnArr,
+      datasets: [{
+        data: gainArr,
+        borderColor: '#00e5ff',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4,
+        fill: true,
+        backgroundColor: 'rgba(0,229,255,0.05)'
+      }, {
+        data: Array(fnArr.length).fill((Vout * 2 * n / Vin).toFixed(4)),
+        borderColor: '#f59e0b',
+        borderWidth: 1,
+        borderDash: [4,4],
+        pointRadius: 0,
+        label: 'Target M'
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => `f = ${ctx[0].label} kHz`,
+            label: ctx => `M = ${ctx.raw}`
+          },
+          backgroundColor: '#161a22',
+          titleColor: '#64748b',
+          bodyColor: '#e2e8f0',
+          titleFont: { family: 'IBM Plex Mono', size: 10 },
+          bodyFont: { family: 'IBM Plex Mono', size: 11 }
+        }
+      },
+      scales: {
+        ...chartDefaults.scales,
+        x: { ...chartDefaults.scales.x, title: { display: true, text: 'Frequency (kHz)', color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } } },
+        y: { ...chartDefaults.scales.y, title: { display: true, text: 'Gain M', color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } } }
+      }
+    }
+  });
+
+  // 2. Efficiency vs Load
+  const loadPcts = [], effArr = [];
+  for (let p = 5; p <= 100; p += 5) {
+    const Po = Pout * p / 100;
+    const Io = Po / Vout;
+    const pm = 4 * Rdson * Math.pow(Po/(Vin*0.9), 2);
+    const pd = 2 * Vf * Io;
+    const pw = Resr * Math.pow(Po/(Vin*0.9), 2);
+    const pc = P_core;
+    const pt = pm + pd + pw + pc;
+    const ef = (Po / (Po + pt)) * 100;
+    loadPcts.push(p);
+    effArr.push(ef.toFixed(2));
+  }
+
+  effChart = new Chart(document.getElementById('effChart'), {
+    type: 'line',
+    data: {
+      labels: loadPcts,
+      datasets: [{
+        data: effArr,
+        borderColor: '#10b981',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: '#10b981',
+        tension: 0.3,
+        fill: true,
+        backgroundColor: 'rgba(16,185,129,0.07)'
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => `Load: ${ctx[0].label}%`,
+            label: ctx => `η = ${ctx.raw}%`
+          },
+          backgroundColor: '#161a22',
+          titleColor: '#64748b',
+          bodyColor: '#e2e8f0',
+          titleFont: { family: 'IBM Plex Mono', size: 10 },
+          bodyFont: { family: 'IBM Plex Mono', size: 11 }
+        }
+      },
+      scales: {
+        ...chartDefaults.scales,
+        x: { ...chartDefaults.scales.x, title: { display: true, text: 'Load (%)', color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } } },
+        y: { ...chartDefaults.scales.y, min: 80, title: { display: true, text: 'η (%)', color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } } }
+      }
+    }
+  });
+
+  // 3. Tank impedance vs frequency
+  const freqArr2 = [], impedArr = [];
+  for (let f = fr * 0.2; f <= fr * 3; f += fr * 0.025) {
+    freqArr2.push((f / 1e3).toFixed(1));
+    impedArr.push(tankImpedance(f, Lr, Cr, Lm).toFixed(3));
+  }
+
+  impedChart = new Chart(document.getElementById('impedChart'), {
+    type: 'line',
+    data: {
+      labels: freqArr2,
+      datasets: [{
+        data: impedArr,
+        borderColor: '#7c3aed',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+        fill: true,
+        backgroundColor: 'rgba(124,58,237,0.06)'
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => `f = ${ctx[0].label} kHz`,
+            label: ctx => `|Z| = ${ctx.raw} Ω`
+          },
+          backgroundColor: '#161a22', titleColor: '#64748b', bodyColor: '#e2e8f0',
+          titleFont: { family: 'IBM Plex Mono', size: 10 },
+          bodyFont: { family: 'IBM Plex Mono', size: 11 }
+        }
+      },
+      scales: {
+        ...chartDefaults.scales,
+        x: { ...chartDefaults.scales.x, title: { display: true, text: 'Frequency (kHz)', color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } } },
+        y: { ...chartDefaults.scales.y, title: { display: true, text: '|Ztank| (Ω)', color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } } }
+      }
+    }
+  });
+
+  // 4. Loss pie
+  lossChart = new Chart(document.getElementById('lossChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['MOSFET Cond.', 'Diode Cond.', 'Winding ESR', 'Core Loss'],
+      datasets: [{
+        data: [P_mosfet, P_diode, P_winding, P_core].map(v => v.toFixed(3)),
+        backgroundColor: ['rgba(0,229,255,0.8)', 'rgba(124,58,237,0.8)', 'rgba(245,158,11,0.8)', 'rgba(239,68,68,0.7)'],
+        borderColor: '#0a0c10', borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: true, position: 'bottom',
+          labels: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 }, padding: 12, boxWidth: 12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.raw} W (${((ctx.raw/P_total)*100).toFixed(1)}%)`
+          },
+          backgroundColor: '#161a22', bodyColor: '#e2e8f0',
+          bodyFont: { family: 'IBM Plex Mono', size: 11 }
+        }
+      }
+    }
+  });
+}
+
+// Run on load with defaults
+window.addEventListener('load', calculate);
+</script>
+</body>
+</html>
