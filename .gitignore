@@ -1,0 +1,7 @@
+# LTspice generated files
+*.raw
+*.net
+*.log
+*.op.raw
+*.fft
+*.bat
