@@ -87,7 +87,7 @@
 		)
 		(symbol "UCC25661-Q1_1_1"
 			(pin input line
-				(at -8.89 10.16 180)
+				(at -11.43 10.16 0)
 				(length 2.54)
 				(name "HV"
 					(effects
@@ -105,7 +105,7 @@
 				)
 			)
 			(pin no_connect line
-				(at -8.89 7.62 180)
+				(at -11.43 7.62 0)
 				(length 2.54)
 				(hide yes)
 				(name "HV_Spacer"
@@ -124,7 +124,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 5.08 180)
+				(at -11.43 5.08 0)
 				(length 2.54)
 				(name "BLK"
 					(effects
@@ -142,7 +142,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 2.54 180)
+				(at -11.43 2.54 0)
 				(length 2.54)
 				(name "OVP/OTP"
 					(effects
@@ -160,7 +160,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 0 180)
+				(at -11.43 0 0)
 				(length 2.54)
 				(name "FB"
 					(effects
@@ -178,7 +178,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -2.54 180)
+				(at -11.43 -2.54 0)
 				(length 2.54)
 				(name "LL"
 					(effects
@@ -196,7 +196,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -8.89 -5.08 180)
+				(at -11.43 -5.08 0)
 				(length 2.54)
 				(name "TSET"
 					(effects
@@ -214,7 +214,7 @@
 				)
 			)
 			(pin power_out line
-				(at -8.89 -7.62 180)
+				(at -11.43 -7.62 0)
 				(length 2.54)
 				(name "V5P"
 					(effects
@@ -232,7 +232,7 @@
 				)
 			)
 			(pin input line
-				(at 8.89 -7.62 0)
+				(at 11.43 -7.62 180)
 				(length 2.54)
 				(name "ISNS"
 					(effects
@@ -250,7 +250,7 @@
 				)
 			)
 			(pin power_in line
-				(at 8.89 -5.08 0)
+				(at 11.43 -5.08 180)
 				(length 2.54)
 				(name "GNDP"
 					(effects
@@ -268,7 +268,7 @@
 				)
 			)
 			(pin output line
-				(at 8.89 -2.54 0)
+				(at 11.43 -2.54 180)
 				(length 2.54)
 				(name "LO"
 					(effects
@@ -286,7 +286,7 @@
 				)
 			)
 			(pin power_out line
-				(at 8.89 0 0)
+				(at 11.43 0 180)
 				(length 2.54)
 				(name "VCCP"
 					(effects
@@ -304,7 +304,7 @@
 				)
 			)
 			(pin no_connect line
-				(at 8.89 2.54 0)
+				(at 11.43 2.54 180)
 				(length 2.54)
 				(hide yes)
 				(name "HV_Spacer"
@@ -323,7 +323,7 @@
 				)
 			)
 			(pin power_in line
-				(at 8.89 5.08 0)
+				(at 11.43 5.08 180)
 				(length 2.54)
 				(name "HB"
 					(effects
@@ -341,7 +341,7 @@
 				)
 			)
 			(pin output line
-				(at 8.89 7.62 0)
+				(at 11.43 7.62 180)
 				(length 2.54)
 				(name "HO"
 					(effects
@@ -359,7 +359,7 @@
 				)
 			)
 			(pin power_in line
-				(at 8.89 10.16 0)
+				(at 11.43 10.16 180)
 				(length 2.54)
 				(name "HS"
 					(effects
