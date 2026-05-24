@@ -12,26 +12,22 @@ Iout_max = 30.1
 
 # Transformer Turns
 n = (1/2) * Vin_nom/Vout
-print(n)
+print("Turn Ratio:", n)
 
-# Values
-Lr = 1.92e-6
-Cr = 586e-9
-Lm = 4.608e-6
+# Values (refer to LLC-Value)
+Lr = 3.943e-06
+Cr = 2.855e-07
+Lm = 8.220e-06
 
 fsw = 150e3
 fr = 1/(2*np.pi*np.sqrt(Lr*Cr))
+print("Resonant Frequency:", fr)
 
 fn = fsw/fr
 Lratio = Lr/Lm
-
-R = Vout/Iout_max
+print("Lratio:", Lratio)
 
 Z = np.sqrt(Lr/Cr)
-
-Re = 8*R*n**2/(np.pi)**2
-
-Q = Z/Re
 
 # Vout/Vin = 1/2n * M
 

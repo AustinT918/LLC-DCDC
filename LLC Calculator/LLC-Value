@@ -24,27 +24,39 @@ Czvs = 2*Coss+Cstray
 
 # Transformer Turns
 n = (1/2) * Vin_nom/Vout
+print("Turn Ratio:", n)
 
 # Max and Min Gain
 M_max = 2*n*Vout/Vin_min
+print("M_max:", M_max)
 M_min = 2*n*Vout/Vin_max
+print("M_min:", M_min)
 
 # Maximum Normalized operating frequency
 fn_max = fmax/fr
 
 # Effective Load Resistance
 R = Vout/Iout_max
+print("Rload:", R)
 Re = 8*R*n**2/(np.pi)**2
-
+print("Equiv. Resistance:", Re)
 # Inductance Ratio
 Lratio = ((1-M_min)/M_min)*((fn_max**2)/((fn_max**2)-1))
+print("Lratio:", Lratio)
 
 Q_zvs_min = 0.95 * Lratio/M_max * np.sqrt((1/Lratio) + (M_max**2)/(M_max**2-1))
+print("Qzvsmin",Q_zvs_min)
 
 Q_zvs_max = 2/np.pi * ((Lratio*fn_max)/((Lratio+1)*fn_max**2-Lratio)) * (Td/(Re*Czvs))
+print("Qzvsmax",Q_zvs_max)
 
 # Characteristic Impedance
 Z = Q_zvs_min*Re
+
+# Minimum Switching Frequency (to achieve ZVS(?))
+fmin = fr * np.sqrt(1 / (1 + (1/Lratio) * (1 - 1/(M_max * (1 + (Q_zvs_min/Q_zvs_max)**4)))))
+print("Min Freq to acheive ZVS:", fmin)
+
 
 # Component Values
 Cr = 1/(2*np.pi*fr*Z)
@@ -54,3 +66,5 @@ Lm = Lr/Lratio
 print("Cr:", Cr)
 print("Lr:", Lr)
 print("Lm:", Lm)
+
+# Inputted into LLC-Gain Curve
