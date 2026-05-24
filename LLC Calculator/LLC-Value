@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Refer to Research Material/LLC resonant half-bridge converter design guideline ST
+
+# Design Specs
+Vin_max = 125
+Vin_nom = 108
+Vin_min = 75
+
+Vout = 13.4
+
+Iout_max = 30.1
+
+# Can be Changed
+fr = 150e3
+fmax = 1.22*fr
+
+Td = 32.357e-9 # Check
+
+Coss = 47e-12 #pF Check
+Cstray = 300e-12
+Czvs = 2*Coss+Cstray
+
+# Transformer Turns
+n = (1/2) * Vin_nom/Vout
+
+# Max and Min Gain
+M_max = 2*n*Vout/Vin_min
+M_min = 2*n*Vout/Vin_max
+
+# Maximum Normalized operating frequency
+fn_max = fmax/fr
+
+# Effective Load Resistance
+R = Vout/Iout_max
+Re = 8*R*n**2/(np.pi)**2
+
+# Inductance Ratio
+Lratio = ((1-M_min)/M_min)*((fn_max**2)/((fn_max**2)-1))
+
+Q_zvs_min = 0.95 * Lratio/M_max * np.sqrt((1/Lratio) + (M_max**2)/(M_max**2-1))
+
+Q_zvs_max = 2/np.pi * ((Lratio*fn_max)/((Lratio+1)*fn_max**2-Lratio)) * (Td/(Re*Czvs))
+
+# Characteristic Impedance
+Z = Q_zvs_min*Re
+
+# Component Values
+Cr = 1/(2*np.pi*fr*Z)
+Lr = Z/(2*np.pi*fr)
+Lm = Lr/Lratio
+
+print("Cr:", Cr)
+print("Lr:", Lr)
+print("Lm:", Lm)
